@@ -4,7 +4,7 @@ import os
 import json
 from datetime import datetime, timedelta
 from telethon import TelegramClient, events
-from telethon.network.connection import ConnectionTcpMTProxyAbridged
+from telethon.network.connection import ConnectionTcpMTProxyAbridged as MTProxyConnection
 from config import API_ID, API_HASH, CHANNEL_NAME, BOT_TOKEN, USE_PROXY, PROXY_AUTO_UPDATE, MANUAL_PROXY
 from parser import parse_nzti_message, has_nzti_tag
 from proxy_manager import proxy_manager
@@ -42,12 +42,11 @@ async def get_client_with_proxy(use_bot=False):
             host, port, secret = proxy
             print(f"Using proxy: {host}:{port}")
             proxy = (host, port, secret)
-            connection = ConnectionTcpMTProxyRandomized
     
     if use_bot:
-        return TelegramClient('bot_session', int(API_ID), API_HASH, proxy=proxy, connection=connection)
+        return TelegramClient('bot_session', int(API_ID), API_HASH, proxy=proxy, connection=MTProxyConnection if proxy else None)
     else:
-        return TelegramClient('session', int(API_ID), API_HASH, proxy=proxy, connection=connection)
+        return TelegramClient('session', int(API_ID), API_HASH, proxy=proxy, connection=MTProxyConnection if proxy else None)
 
 async def fetch_yesterday_messages():
     yesterday_str = get_yesterday_date()

@@ -151,12 +151,13 @@ class ProxyManager:
         try:
             from telethon import TelegramClient
             from telethon.network.connection import ConnectionTcpMTProxyAbridged
+            from config import API_ID, API_HASH
             
             # Use a temporary client to test connection
             test_client = TelegramClient(
                 None,
-                0,  # Dummy API_ID for testing
-                '',
+                int(API_ID),
+                API_HASH,
                 proxy=(host, port, secret),
                 connection=ConnectionTcpMTProxyAbridged
             )
