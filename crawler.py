@@ -4,7 +4,7 @@ import os
 import json
 from datetime import datetime, timedelta
 from telethon import TelegramClient, events
-from telethon.network.connection import ConnectionTcpMTProxyRandomized
+from telethon.network.connection import ConnectionTcpMTProxyAbridged
 from config import API_ID, API_HASH, CHANNEL_NAME, BOT_TOKEN, USE_PROXY, PROXY_AUTO_UPDATE
 from parser import parse_nzti_message, has_nzti_tag
 from proxy_manager import proxy_manager
