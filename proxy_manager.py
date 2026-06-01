@@ -150,7 +150,7 @@ class ProxyManager:
         """Test if proxy is working by trying to connect"""
         try:
             from telethon import TelegramClient
-            from telethon.network.connection import ConnectionTcpMTProxyRandomized
+            from telethon.network.connection import ConnectionTcpMTProxyAbridged
             
             # Use a temporary client to test connection
             test_client = TelegramClient(
@@ -158,7 +158,7 @@ class ProxyManager:
                 0,  # Dummy API_ID for testing
                 '',
                 proxy=(host, port, secret),
-                connection=ConnectionTcpMTProxyRandomized
+                connection=ConnectionTcpMTProxyAbridged
             )
             
             # Try to connect with timeout
