@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timedelta
 from telethon import TelegramClient, events
 from telethon.network.connection import ConnectionTcpMTProxyAbridged as MTProxyConnection
-from config import API_ID, API_HASH, CHANNEL_NAME, BOT_TOKEN, USE_PROXY, PROXY_AUTO_UPDATE, MANUAL_PROXY
+from config import API_ID, API_HASH, CHANNEL_NAME, BOT_TOKEN, USE_PROXY, PROXY_AUTO_UPDATE, MANUAL_PROXY, PROXY_TEST
 from parser import parse_nzti_message, has_nzti_tag
 from proxy_manager import proxy_manager
 
@@ -135,9 +135,12 @@ async def run_bot():
     
     if USE_PROXY and PROXY_AUTO_UPDATE:
         await proxy_manager.load_proxies()
-        working_proxy = await proxy_manager.find_working_proxy()
-        if not working_proxy:
-            print("Warning: No working proxy found, trying without proxy...")
+        if PROXY_TEST:
+            working_proxy = await proxy_manager.find_working_proxy()
+            if not working_proxy:
+                print("Warning: No working proxy found, trying without proxy...")
+        else:
+            print(f"Loaded {len(proxy_manager.proxies)} proxies, will use them directly")
     
     for attempt in range(MAX_RETRIES):
         try:

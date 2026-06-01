@@ -11,6 +11,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # Proxy settings
 USE_PROXY = os.getenv("USE_PROXY", "true").lower() == "true"
 PROXY_AUTO_UPDATE = os.getenv("PROXY_AUTO_UPDATE", "true").lower() == "true"
+PROXY_TEST = os.getenv("PROXY_TEST", "false").lower() == "true"  # Test proxies before using
 
 # Manual proxy (format: host:port:secret)
 MANUAL_PROXY = os.getenv("MANUAL_PROXY", "")
