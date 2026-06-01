@@ -192,9 +192,5 @@ class ProxyManager:
         print("No working proxy found")
         return None
 
-# Global proxy manager instance (will be initialized with config later)
-proxy_manager = None
-
-def init_proxy_manager(manual_proxy: str = ""):
-    global proxy_manager
-    proxy_manager = ProxyManager(manual_proxy)
+# Global proxy manager instance
+proxy_manager = ProxyManager()

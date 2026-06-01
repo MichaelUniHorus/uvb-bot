@@ -7,10 +7,7 @@ from telethon import TelegramClient, events
 from telethon.network.connection import ConnectionTcpMTProxyAbridged
 from config import API_ID, API_HASH, CHANNEL_NAME, BOT_TOKEN, USE_PROXY, PROXY_AUTO_UPDATE, MANUAL_PROXY
 from parser import parse_nzti_message, has_nzti_tag
-from proxy_manager import proxy_manager, init_proxy_manager
-
-# Initialize proxy manager with manual proxy if provided
-init_proxy_manager(MANUAL_PROXY)
+from proxy_manager import proxy_manager
 
 CSV_FILE = "nzti_data.csv"
 SUBSCRIBERS_FILE = "subscribers.json"
