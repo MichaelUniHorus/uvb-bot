@@ -12,6 +12,9 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 USE_PROXY = os.getenv("USE_PROXY", "true").lower() == "true"
 PROXY_AUTO_UPDATE = os.getenv("PROXY_AUTO_UPDATE", "true").lower() == "true"
 
+# Manual proxy (format: host:port:secret)
+MANUAL_PROXY = os.getenv("MANUAL_PROXY", "")
+
 if not API_ID:
     raise ValueError("API_ID not found in environment variables")
 if not API_HASH:

@@ -10,11 +10,16 @@ PROXY_CACHE_FILE = "proxy_cache.txt"
 PROXY_UPDATE_INTERVAL = 12 * 60 * 60  # 12 hours in seconds
 
 class ProxyManager:
-    def __init__(self):
+    def __init__(self, manual_proxy: str = ""):
         self.proxies: List[Tuple[str, int, str]] = []  # (host, port, secret)
         self.current_index = 0
         self.last_update = 0
         self.lock = asyncio.Lock()
+        
+        # Add manual proxy if provided
+        if manual_proxy:
+            self._parse_proxies(manual_proxy)
+            print(f"Added manual proxy: {len(self.proxies)}")
         
     async def load_proxies(self) -> bool:
         """Load proxies from cache or download fresh ones"""
@@ -35,10 +40,13 @@ class ProxyManager:
     async def download_proxies(self) -> bool:
         """Download fresh proxies from GitHub"""
         try:
+            print(f"Downloading proxies from {PROXY_LIST_URL}...")
             async with aiohttp.ClientSession() as session:
                 async with session.get(PROXY_LIST_URL, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                    print(f"Response status: {response.status}")
                     if response.status == 200:
                         content = await response.text()
+                        print(f"Downloaded {len(content)} bytes")
                         self._parse_proxies(content)
                         
                         # Save to cache
@@ -47,6 +55,8 @@ class ProxyManager:
                         
                         print(f"Downloaded {len(self.proxies)} fresh proxies")
                         return len(self.proxies) > 0
+                    else:
+                        print(f"Failed to download: HTTP {response.status}")
         except Exception as e:
             print(f"Error downloading proxies: {e}")
         
@@ -141,5 +151,9 @@ class ProxyManager:
         print("No working proxy found")
         return None
 
-# Global proxy manager instance
-proxy_manager = ProxyManager()
+# Global proxy manager instance (will be initialized with config later)
+proxy_manager = None
+
+def init_proxy_manager(manual_proxy: str = ""):
+    global proxy_manager
+    proxy_manager = ProxyManager(manual_proxy)
