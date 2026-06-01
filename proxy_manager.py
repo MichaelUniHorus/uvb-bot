@@ -9,6 +9,13 @@ PROXY_LIST_URL = "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/al
 PROXY_CACHE_FILE = "proxy_cache.txt"
 PROXY_UPDATE_INTERVAL = 12 * 60 * 60  # 12 hours in seconds
 
+# Fallback built-in proxies (in case GitHub is blocked)
+BUILTIN_PROXIES = [
+    # Add some known working MTProxy proxies here
+    # Format: host:port:secret
+    # These are examples - replace with actual working proxies
+]
+
 class ProxyManager:
     def __init__(self, manual_proxy: str = ""):
         self.proxies: List[Tuple[str, int, str]] = []  # (host, port, secret)
@@ -25,6 +32,15 @@ class ProxyManager:
         """Load proxies from cache or download fresh ones"""
         cache_path = PROXY_CACHE_FILE
         
+        # First try to load from manual file if exists
+        manual_file = "manual_proxies.txt"
+        if os.path.exists(manual_file):
+            with open(manual_file, 'r', encoding='utf-8') as f:
+                self._parse_proxies(f.read())
+            print(f"Loaded {len(self.proxies)} proxies from manual file")
+            if len(self.proxies) > 0:
+                return True
+        
         # Check if cache exists and is fresh
         if os.path.exists(cache_path):
             cache_time = os.path.getmtime(cache_path)
@@ -35,7 +51,15 @@ class ProxyManager:
                 return len(self.proxies) > 0
         
         # Download fresh proxies
-        return await self.download_proxies()
+        result = await self.download_proxies()
+        
+        # Fallback to built-in proxies if download failed
+        if not result and BUILTIN_PROXIES:
+            self._parse_proxies('\n'.join(BUILTIN_PROXIES))
+            print(f"Loaded {len(self.proxies)} built-in proxies")
+            return len(self.proxies) > 0
+        
+        return result
     
     async def download_proxies(self) -> bool:
         """Download fresh proxies from GitHub"""
@@ -77,16 +101,33 @@ class ProxyManager:
             if not line or line.startswith('#'):
                 continue
             
-            # Format: host:port:secret
-            parts = line.split(':')
-            if len(parts) >= 3:
+            # Format: https://t.me/proxy?server=...&port=...&secret=...
+            if line.startswith('https://t.me/proxy?'):
                 try:
-                    host = parts[0]
-                    port = int(parts[1])
-                    secret = ':'.join(parts[2:])  # Secret may contain colons
-                    self.proxies.append((host, port, secret))
-                except ValueError:
+                    from urllib.parse import parse_qs, urlparse
+                    parsed = urlparse(line)
+                    params = parse_qs(parsed.query)
+                    
+                    if 'server' in params and 'port' in params and 'secret' in params:
+                        host = params['server'][0]
+                        port = int(params['port'][0])
+                        secret = params['secret'][0]
+                        self.proxies.append((host, port, secret))
+                except Exception as e:
+                    print(f"Error parsing proxy line: {e}")
                     continue
+            
+            # Fallback: Format: host:port:secret
+            else:
+                parts = line.split(':')
+                if len(parts) >= 3:
+                    try:
+                        host = parts[0]
+                        port = int(parts[1])
+                        secret = ':'.join(parts[2:])  # Secret may contain colons
+                        self.proxies.append((host, port, secret))
+                    except ValueError:
+                        continue
     
     def get_current_proxy(self) -> Optional[Tuple[str, int, str]]:
         """Get current proxy"""

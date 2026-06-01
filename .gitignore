@@ -4,3 +4,4 @@
 __pycache__/
 *.pyc
 proxy_cache.txt
+manual_proxies.txt
